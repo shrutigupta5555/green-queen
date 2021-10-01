@@ -1,5 +1,5 @@
 body{
-    background-color: rgb(24, 23, 23);
+    background-color: black;
 
 }
 
@@ -8,3 +8,19 @@ p{
     font-size: large;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
+
+.moon{
+ margin-left: 4rem;
+ margin-top: 3rem;
+}
+
+.flower1{
+    margin-bottom: 0;
+    position: absolute; bottom: 0px; 
+    margin-left: 0rem;
+}
+/* .flower2{
+    margin-bottom: 0;
+    position: absolute; bottom: 0px; 
+    margin-left: 5rem;
+} */
