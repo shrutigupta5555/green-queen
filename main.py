@@ -13,6 +13,24 @@ bot = commands.Bot(command_prefix='!')
 load_dotenv()
 
 
+#initialize firebase
+
+import firebase_admin #type:ignore
+from firebase_admin import credentials, db, firestore #type:ignore
+
+
+
+
+cred = credentials.Certificate("path-to-service.json")
+databaseURL = 'https://green-queen-566b2-default-rtdb.asia-southeast1.firebasedatabase.app/'
+default_app = firebase_admin.initialize_app(cred, {
+	'databaseURL':databaseURL
+	})
+
+
+firestore_db = firestore.client()
+
+
 def find_products(product_type, loc, budget):
 # def find_products():
     url = f"https://www.crueltyfreekitty.com/list-of-cruelty-free-brands/?sustainable=on&shipping_location={loc}&retailer=&price={budget}&product_type={product_type}"
@@ -86,7 +104,7 @@ async def find(ctx):
     product_list = ['baby','body-care','cleaning','deodrant','tanning-products',' false-eyelashes', 'feminine-hygiene', 'for-men', 'fragrance','hair-care', 'hair-dye', 'hair-removal','laundry', 'makeup','nail-polish','oral-care','skincare','sunscreen', '']
     shipping_list = ['international', 'uk-europe','usa' ,'australia', 'canada', '']
     price_range_list = ['Budget', 'mid-range', 'high-end', '']
-    await ctx.send('What do you wanna buy [Choose one of the following] \n 1. Baby Products \n 2. Body Care \n 3. Cleaning \n 4. Deodrant \n 5. Tanning products \n 6. False eyelashes \n 7. Feminine hygiene \n 8. For men \n 9. Fragrance \n 10. Hair care \n 11. Hair dye \n 12. Hair removal \n 13. Laundry \n 14. Makeup \n 15. Nail polish \n 16. Oral care \n 17. skincare \n 18. sunscreen \n 19. All Products')
+    await ctx.send('What do you wanna buy? [Choose one of the following] \n 1. Baby Products \n 2. Body Care \n 3. Cleaning \n 4. Deodrant \n 5. Tanning products \n 6. False eyelashes \n 7. Feminine hygiene \n 8. For men \n 9. Fragrance \n 10. Hair care \n 11. Hair dye \n 12. Hair removal \n 13. Laundry \n 14. Makeup \n 15. Nail polish \n 16. Oral care \n 17. skincare \n 18. sunscreen \n 19. All Products')
 
     def check(msg):
         return msg.author == ctx.author and msg.channel == ctx.channel and int(msg.content) in range(1,20)
@@ -97,7 +115,7 @@ async def find(ctx):
     await ctx.send(f"Shipping location? [Choose one of the following] \n 1. International \n 2. UK/Europe \n 3. USA \n 4. Australia \n 5. Canada \n 6. All Shipping Locations")
     loc = await bot.wait_for("message", check=check)
 
-    await ctx.send(f"Price Range? [Choose one of the following] \n 1. Budget \n 2. Mid-range \n 3. High-Range \n 4. All Budget Range")
+    await ctx.send(f"Price Range? [Choose one of the following] \n 1. Budget \n 2. Mid-range \n 3. High-Range \n 4. All Price Range")
     price_range = await bot.wait_for("message", check=check)
 
 
@@ -112,7 +130,7 @@ async def find(ctx):
         )
         embeded.add_field(name = chr(173), value = chr(173))
         for i in range(len(data)):
-            embeded.add_field(name="Shop Name",value=data[i]['name'], inline=False)
+            embeded.add_field(name="Brand Name",value=data[i]['name'], inline=False)
             # embeded.add_field(name="Available shops", value="Available shops", inline=False)
             shop_list = data[i]['shops']
             for shop in shop_list:
@@ -162,5 +180,14 @@ async def trycry(ctx):
     embeded.add_field(name="aakash baamzi", value="baamzi queem")
     await ctx.send(embed=embeded)
 
+
+@bot.command()
+async def firefire(ctx):
+    output_ref = firestore_db.collection("users").document('neGaBgVEI8H7w8axvvVp')
+    output = output_ref.get()
+    
+    retrieved_message =  output.to_dict()
+    print(retrieved_message)
+    await ctx.send(str(retrieved_message))
 bot.run(os.getenv('BOT_TOKEN'))
 # bot.run('<bot token hehe>')
