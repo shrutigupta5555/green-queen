@@ -1,13 +1,13 @@
-import discord
-from discord.embeds import Embed
+import discord #type:ignore
+from discord.embeds import Embed #type:ignore
 # from discord import client
-from discord.ext import commands
-import requests
-from dotenv import load_dotenv
+from discord.ext import commands #type:ignore
+import requests #type:ignore
+from dotenv import load_dotenv #type:ignore
 import os
 import random
 from bs4 import BeautifulSoup #type:ignore
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont, ImageDraw #type:ignore
 import asyncio
 bot = commands.Bot(command_prefix='!')
 load_dotenv()
@@ -119,6 +119,7 @@ async def find(ctx):
                 embeded.add_field(name=f"🌱 {shop['shop_title']}" , value=f"{shop['shop_title']} \n {shop['shop_link']}", inline=False)
             embeded.add_field(name = chr(173), value = chr(173))
 
+    embeded.add_field(name="Congratulations!!!",value="🍀 You've earned 50 coins for choosing sustainable brands 🍀", inline=False)
     await ctx.send(embed=embeded)
     # await ctx.send(f"You said product:{product_list[int(product.content)-1]} loc: {shipping_list[int(loc.content)-1]}  price: {price_range_list[int(price_range.content)-1]}")
 
