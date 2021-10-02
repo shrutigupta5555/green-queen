@@ -152,7 +152,7 @@ async def scan(ctx):
 
         op = find_product_name().lower()
         sus = is_sustainable(op)
-        acf = False
+        acf = True
         if not sus:
             acf = is_acf(op)
         if sus:
@@ -173,7 +173,7 @@ async def scan(ctx):
         else:
             semoji = "❌"
 
-        point = 10 * acf + 10 * sus
+        point = 50 * acf + 50 * sus
         embeded.add_field(name="Detected Brand Name", value=f"{op}", inline=False)
         embeded.add_field(name="Is my product sustainable?", value=f"{semoji}", inline=False)
         embeded.add_field(name="Is my product animal cruelty free?", value=f"{calc}", inline=False)
