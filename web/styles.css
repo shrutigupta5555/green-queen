@@ -1,5 +1,5 @@
 body{
-    background-color: rgb(24, 23, 23);
+    background-color: black;
 
 }
 
@@ -7,4 +7,51 @@ p{
     color: white;
     font-size: large;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.moon{
+ margin-left: 0rem;
+ margin-top: 3rem;
+}
+
+.flower1{
+    margin-bottom: 0rem;
+    position: absolute; bottom: 0px; 
+    margin-left: 0rem;
+}
+
+@media screen and (min-width: 480px) {
+    .flower1{
+        margin-bottom: -10rem;
+        position: absolute; bottom: 0px; 
+        margin-left: 0rem;
+    }
+    
+    .moon{
+        margin-left: 4rem;
+        margin-top: 3rem;
+       }
+  }
+/* .flower2{
+    margin-bottom: 0;
+    position: absolute; bottom: 0px; 
+    margin-left: 5rem;
+} */
+
+
+.content{
+    margin-top: -7rem;
+}
+
+.invite-btn{
+    height: 3rem;
+width: 10rem;
+
+/* border: white; */
+border-width: 2px;
+border-color: white;
+border-radius: 10px;
+color: white;
+background-color: black;
+
 }
