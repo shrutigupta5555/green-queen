@@ -1,17 +1,59 @@
 import discord
+from discord.embeds import Embed
 # from discord import client
 from discord.ext import commands
 import requests
 from dotenv import load_dotenv
 import os
 import random
+from bs4 import BeautifulSoup #type:ignore
 from PIL import Image, ImageFont, ImageDraw
-
+import asyncio
 bot = commands.Bot(command_prefix='!')
 load_dotenv()
 
 
+def find_products(product_type, loc, budget):
+# def find_products():
+    url = f"https://www.crueltyfreekitty.com/list-of-cruelty-free-brands/?sustainable=on&shipping_location={loc}&retailer=&price={budget}&product_type={product_type}"
+    # url ='https://www.crueltyfreekitty.com/list-of-cruelty-free-brands/?sustainable=on&shipping_location=international&retailer=&price=Budget&product_type=body-care'
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text, features="html.parser")
 
+
+    tracks=soup.find_all("div", attrs ={"class": "brand-list__list__item"})
+
+
+    data = []
+
+    if len(tracks) >= 1:
+        if len(tracks) > 5:
+            t = 5
+        else:
+            t = len(tracks)
+        
+        for i in range(t):
+            shop_name = tracks[i].find("a", class_="heading heading--secondary brand-list__list__title").getText()
+            shop_list_div = tracks[i].find("div", class_="brand-list__list__shops")
+            shop_list = tracks[i].find_all("a", attrs={"class": "button button--green brand-list__list__shop-button"}, href=True)
+            s = []
+            for shop in shop_list:
+                shop_title = shop.getText()
+                shop_link = shop['href']
+                
+                temp = {"shop_title": shop_title, "shop_link": shop_link}
+                s.append(temp)
+            d = {
+                "name" : shop_name,
+                "shops" : s
+            }
+
+            data.append(d)
+
+            print(data, "====")
+    return data
+
+# find_products()
 @bot.command()
 async def ping(ctx):
     await ctx.send('pong')
@@ -41,10 +83,10 @@ async def guess(ctx):
 @bot.command()
 async def find(ctx):
     # computer = random.randint(1, 10)
-    product_list = ['baby','body-care','cleaning','deodrant','tanning-products',' false-eyelashes', 'feminine-hygiene', 'for-men', 'fragrance','hair-care', 'hair-dye', 'hair-removal','laundry', 'makeup','nail-polish','oral-care','skincare','sunscreen']
+    product_list = ['baby','body-care','cleaning','deodrant','tanning-products',' false-eyelashes', 'feminine-hygiene', 'for-men', 'fragrance','hair-care', 'hair-dye', 'hair-removal','laundry', 'makeup','nail-polish','oral-care','skincare','sunscreen', '']
     shipping_list = ['international', 'uk-europe','usa' ,'australia', 'canada', '']
-    price_range_list = ['budget', 'mid-range', 'high-range']
-    await ctx.send('What do you wanna buy [Choose one of the following] \n 1. Baby Products \n 2. Body Care \n 3. Cleaning \n 4. Deodrant \n 5. Tanning products \n 6. False eyelashes \n 7. Feminine hygiene \n 8. For men \n 9. Fragrance \n 10. Hair care \n 11. Hair dye \n 12. Hair removal \n 13. Laundry \n 14. Makeup \n 15. Nail polish \n 16. Oral care \n 17. skincare \n 18. sunscreen')
+    price_range_list = ['Budget', 'mid-range', 'high-end', '']
+    await ctx.send('What do you wanna buy [Choose one of the following] \n 1. Baby Products \n 2. Body Care \n 3. Cleaning \n 4. Deodrant \n 5. Tanning products \n 6. False eyelashes \n 7. Feminine hygiene \n 8. For men \n 9. Fragrance \n 10. Hair care \n 11. Hair dye \n 12. Hair removal \n 13. Laundry \n 14. Makeup \n 15. Nail polish \n 16. Oral care \n 17. skincare \n 18. sunscreen \n 19. All Products')
 
     def check(msg):
         return msg.author == ctx.author and msg.channel == ctx.channel and int(msg.content) in range(1,20)
@@ -55,10 +97,30 @@ async def find(ctx):
     await ctx.send(f"Shipping location? [Choose one of the following] \n 1. International \n 2. UK/Europe \n 3. USA \n 4. Australia \n 5. Canada \n 6. All Shipping Locations")
     loc = await bot.wait_for("message", check=check)
 
-    await ctx.send(f"Price Range? [Choose one of the following] \n 1. Budget \n 2. Mid-range \n 3. High-Range")
+    await ctx.send(f"Price Range? [Choose one of the following] \n 1. Budget \n 2. Mid-range \n 3. High-Range \n 4. All Budget Range")
     price_range = await bot.wait_for("message", check=check)
 
-    await ctx.send(f"You said product:{product_list[int(product.content)-1]} loc: {shipping_list[int(loc.content)-1]}  price: {price_range_list[int(price_range.content)-1]}")
+
+    async with ctx.typing():
+
+        data = find_products(product_list[int(product.content)-1], shipping_list[int(loc.content)-1], price_range_list[int(price_range.content)-1])
+    
+        embeded = Embed(
+            title = f"We searched far and wide",
+            description = "Below is a list of some brands that are strictly animal cruelty free and sustainable",
+            color = 0x000000
+        )
+        embeded.add_field(name = chr(173), value = chr(173))
+        for i in range(len(data)):
+            embeded.add_field(name="Shop Name",value=data[i]['name'], inline=False)
+            # embeded.add_field(name="Available shops", value="Available shops", inline=False)
+            shop_list = data[i]['shops']
+            for shop in shop_list:
+                embeded.add_field(name=f"🌱 {shop['shop_title']}" , value=f"{shop['shop_title']} \n {shop['shop_link']}", inline=False)
+            embeded.add_field(name = chr(173), value = chr(173))
+
+    await ctx.send(embed=embeded)
+    # await ctx.send(f"You said product:{product_list[int(product.content)-1]} loc: {shipping_list[int(loc.content)-1]}  price: {price_range_list[int(price_range.content)-1]}")
 
 
 @bot.command()
@@ -88,7 +150,16 @@ async def stats(ctx):
     # await ctx.send(embed=e)
     await ctx.send(file=discord.File('result.png'))
 
+@bot.command()
+async def trycry(ctx):
+    embeded = discord.Embed(
+        title ="TryCry",
+        description = "more try cry",
+        color = 0x000000,
+    )
 
+    embeded.add_field(name="aakash baamzi", value="baamzi queem")
+    await ctx.send(embed=embeded)
 
 bot.run(os.getenv('BOT_TOKEN'))
 # bot.run('<bot token hehe>')
