@@ -10,15 +10,28 @@ p{
 }
 
 .moon{
- margin-left: 4rem;
+ margin-left: 0rem;
  margin-top: 3rem;
 }
 
 .flower1{
-    margin-bottom: -10rem;
+    margin-bottom: 0rem;
     position: absolute; bottom: 0px; 
     margin-left: 0rem;
 }
+
+@media screen and (min-width: 480px) {
+    .flower1{
+        margin-bottom: -10rem;
+        position: absolute; bottom: 0px; 
+        margin-left: 0rem;
+    }
+    
+    .moon{
+        margin-left: 4rem;
+        margin-top: 3rem;
+       }
+  }
 /* .flower2{
     margin-bottom: 0;
     position: absolute; bottom: 0px; 
