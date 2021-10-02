@@ -314,7 +314,7 @@ async def stats(ctx):
         level = 6
     
     score = coins    
-    my_image = Image.open("template.png")
+    my_image = Image.open(f"{level}.png")
     title_font = ImageFont.truetype('Poppins-Medium.ttf', 25)
     hehe_font =ImageFont.truetype('Poppins-Medium.ttf', 20) 
     tag_font = ImageFont.truetype('Poppins-Medium.ttf', 15)
