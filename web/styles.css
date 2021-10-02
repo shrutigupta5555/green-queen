@@ -15,7 +15,7 @@ p{
 }
 
 .flower1{
-    margin-bottom: 0;
+    margin-bottom: -10rem;
     position: absolute; bottom: 0px; 
     margin-left: 0rem;
 }
@@ -24,3 +24,21 @@ p{
     position: absolute; bottom: 0px; 
     margin-left: 5rem;
 } */
+
+
+.content{
+    margin-top: -7rem;
+}
+
+.invite-btn{
+    height: 3rem;
+width: 10rem;
+
+/* border: white; */
+border-width: 2px;
+border-color: white;
+border-radius: 10px;
+color: white;
+background-color: black;
+
+}
