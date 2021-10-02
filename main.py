@@ -8,7 +8,15 @@ import os
 import random
 from bs4 import BeautifulSoup #type:ignore
 from PIL import Image, ImageFont, ImageDraw #type:ignore
-import asyncio
+
+
+import matplotlib.pyplot as plt #type:ignore
+import cv2 #type:ignore
+import easyocr #type:ignore
+from pylab import rcParams #type:ignore
+from IPython.display import Image #type:ignore
+
+
 bot = commands.Bot(command_prefix='!')
 load_dotenv()
 
@@ -71,16 +79,39 @@ def find_products(product_type, loc, budget):
             print(data, "====")
     return data
 
-# find_products()
+def find_product_name():
+    reader = easyocr.Reader(['en'])
+    # i = Image(url="https://cdn.discordapp.com/attachments/893496172889665536/893855097229033522/antonym-foundation.jpg")
+    output = reader.readtext('test.jpg')
+    return output[0][1].strip("'.,`")
+
+# find_product_name()
+
 @bot.command()
 async def ping(ctx):
     await ctx.send('pong')
 
 @bot.command()
-async def bhemjo(ctx):
-    e = discord.Embed()
-    e.set_image(url="https://images-ext-2.discordapp.net/external/8rweBNc5wtZWXgExkhDd1OYSmjJq96yyI8Uk3EK3kFE/https/media.discordapp.net/attachments/798212050496126976/873430327064952872/PicsArt_08-06-09.31.01.png?width=671&height=671")
-    await ctx.send(embed=e)
+async def scan(ctx):
+    attachment = ctx.message.attachments[0].url
+
+    async with ctx.typing():
+
+        with open('test.jpg', 'wb') as handle:
+            response = requests.get(attachment, stream=True)
+
+            if not response.ok:
+                print(response)
+
+            for block in response.iter_content(1024):
+                if not block:
+                    break
+
+                handle.write(block)
+
+        op = find_product_name()
+
+    await ctx.send(op)
     
 @bot.command()
 async def guess(ctx):
@@ -213,34 +244,9 @@ async def stats(ctx):
     image_editable.text((100,120), str(score), ((255,255,255)), font=hehe_font)
     image_editable.text((250,120), str(level), ((255,255,255)), font=hehe_font)
     my_image.save("result.png")
-    # e.set_image("result.png")
-
-    # file = discord.File("result.png", filename="...") 
-    # await ctx.send("content", file=file)
-    # await bot.send_file(ctx, "filepath.png")
-    # await bot.send_file(ctx, "result.png", content="...", filename="...")
-    # await ctx.send(embed=e)
+    
     await ctx.send(file=discord.File('result.png'))
 
-@bot.command()
-async def trycry(ctx):
-    embeded = discord.Embed(
-        title ="TryCry",
-        description = "more try cry",
-        color = 0x000000,
-    )
 
-    embeded.add_field(name="aakash baamzi", value="baamzi queem")
-    await ctx.send(embed=embeded)
-
-
-@bot.command()
-async def firefire(ctx):
-    output_ref = firestore_db.collection("users").document(str(ctx.message.author.id))
-    output = output_ref.get()
-    
-    retrieved_message =  output.to_dict()
-    print(retrieved_message)
-    await ctx.send(str(retrieved_message))
 bot.run(os.getenv('BOT_TOKEN'))
-# bot.run('<bot token hehe>')
+
