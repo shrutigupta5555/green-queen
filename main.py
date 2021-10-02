@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt #type:ignore
 import cv2 #type:ignore
 import easyocr #type:ignore
 from pylab import rcParams #type:ignore
-from IPython.display import Image #type:ignore
+# from IPython.display import Image #type:ignore
 
 
 bot = commands.Bot(command_prefix='!')
@@ -85,6 +85,46 @@ def find_product_name():
     output = reader.readtext('test.jpg')
     return output[0][1].strip("'.,`")
 
+
+def is_sustainable(param):
+
+    url = 'https://www.crueltyfreekitty.com/list-of-cruelty-free-brands/?sustainable=on'
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text,features="html.parser")
+
+
+    tracks=soup.find_all("div", attrs ={"class": "brand-list__list__item"})
+
+
+    data = ['wow']
+
+    for i in range(len(tracks)):
+        shop_name = tracks[i].find("a", class_="heading heading--secondary brand-list__list__title").getText()
+        s = shop_name.lower()
+
+        data.append(s)
+
+    return( param in data)
+
+def is_acf(param):
+    url = 'https://www.crueltyfreekitty.com/list-of-cruelty-free-brands/'
+    res = requests.get(url)
+    soup = BeautifulSoup(res.text,features="html.parser")
+
+
+    tracks=soup.find_all("div", attrs ={"class": "brand-list__list__item"})
+
+
+    data = []
+
+    for i in range(len(tracks)):
+        shop_name = tracks[i].find("a", class_="heading heading--secondary brand-list__list__title").getText()
+        s = shop_name.lower()
+
+        data.append(s)
+
+    return( param in data)
+
 # find_product_name()
 
 @bot.command()
@@ -94,6 +134,7 @@ async def ping(ctx):
 @bot.command()
 async def scan(ctx):
     attachment = ctx.message.attachments[0].url
+    author = str(ctx.message.author.id)
 
     async with ctx.typing():
 
@@ -109,10 +150,52 @@ async def scan(ctx):
 
                 handle.write(block)
 
-        op = find_product_name()
+        op = find_product_name().lower()
+        sus = is_sustainable(op)
+        acf = False
+        if not sus:
+            acf = is_acf(op)
+        if sus:
+            calc = "✅"
+        elif acf:
+            calc = "✅"
+        else:
+            calc = "❌"
 
-    await ctx.send(op)
+        embeded = Embed(
+            title = "This is what we found",
+        
+            color = 0x000000
+        )
+
+        if sus:
+            semoji = "✅"
+        else:
+            semoji = "❌"
+
+        point = 10 * acf + 10 * sus
+        embeded.add_field(name="Detected Brand Name", value=f"{op}", inline=False)
+        embeded.add_field(name="Is my product sustainable?", value=f"{semoji}", inline=False)
+        embeded.add_field(name="Is my product animal cruelty free?", value=f"{calc}", inline=False)
+        embeded.add_field(name="Congratulations!!", value=f"🍀 You've earned {point} coins 🍀", inline=False)
+    await ctx.send(embed = embeded)
+
+    # update data to firestore
+    output_ref = firestore_db.collection("users").document(author)
+    output = output_ref.get()
+
     
+    
+    retrieved_message =  output.to_dict()
+
+    if(retrieved_message == None):
+        firestore_db.collection("users").document(author).set({"coins":point})
+    else:
+        coins = retrieved_message['coins'] + point
+
+        output_ref.update({'coins': coins})
+
+
 @bot.command()
 async def guess(ctx):
     computer = random.randint(1, 10)
