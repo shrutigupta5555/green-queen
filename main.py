@@ -101,6 +101,11 @@ async def guess(ctx):
 @bot.command()
 async def find(ctx):
     # computer = random.randint(1, 10)
+
+    #get author id
+    author = str(ctx.message.author.id)
+
+    
     product_list = ['baby','body-care','cleaning','deodrant','tanning-products',' false-eyelashes', 'feminine-hygiene', 'for-men', 'fragrance','hair-care', 'hair-dye', 'hair-removal','laundry', 'makeup','nail-polish','oral-care','skincare','sunscreen', '']
     shipping_list = ['international', 'uk-europe','usa' ,'australia', 'canada', '']
     price_range_list = ['Budget', 'mid-range', 'high-end', '']
@@ -136,6 +141,23 @@ async def find(ctx):
             for shop in shop_list:
                 embeded.add_field(name=f"🌱 {shop['shop_title']}" , value=f"{shop['shop_title']} \n {shop['shop_link']}", inline=False)
             embeded.add_field(name = chr(173), value = chr(173))
+        
+        # update data to firestore
+        output_ref = firestore_db.collection("users").document(author)
+        output = output_ref.get()
+
+        
+        
+        retrieved_message =  output.to_dict()
+
+        if(retrieved_message == None):
+            firestore_db.collection("users").document(author).set({"coins":50})
+        else:
+            coins = retrieved_message['coins'] + 50
+
+            output_ref.update({'coins': coins})
+
+        # firestore_db.collection('users').document(author).set(data)
 
     embeded.add_field(name="Congratulations!!!",value="🍀 You've earned 50 coins for choosing sustainable brands 🍀", inline=False)
     await ctx.send(embed=embeded)
@@ -145,15 +167,46 @@ async def find(ctx):
 @bot.command()
 async def stats(ctx):
     # e = discord.Embed()
+    #get author id
+    author = str(ctx.message.author.id)
+
+
+
+    output_ref = firestore_db.collection("users").document(author)
+    output = output_ref.get()
+
+    retrieved_data = output.to_dict()
+
+    if retrieved_data == None:
+        coins = 0
+    else:
+        coins = retrieved_data['coins']
+
+
+
+    if(coins < 50):
+        level = 0
+    elif(coins >= 50 and coins < 150 ):
+        level = 1
+    elif(coins >= 150 and coins < 250 ):
+        level = 2
+    elif(coins >= 250 and coins < 350 ):
+        level = 3
+    elif(coins >= 350 and coins < 450 ):
+        level = 4
+    elif(coins >= 550 and coins < 650 ):
+        level = 5
+    else:
+        level = 6
+    
+    score = coins    
     my_image = Image.open("template.png")
     title_font = ImageFont.truetype('Poppins-Medium.ttf', 25)
     hehe_font =ImageFont.truetype('Poppins-Medium.ttf', 20) 
     tag_font = ImageFont.truetype('Poppins-Medium.ttf', 15)
     name = str(ctx.message.author.display_name)
     tag = str(ctx.message.author)
-    score = 200
-
-    level = 3
+    
     image_editable = ImageDraw.Draw(my_image)
     image_editable.text((30,30), name, ((255,255,255)), font=title_font)
     image_editable.text((30,70), tag, ((255,255,255)), font=tag_font)
@@ -183,7 +236,7 @@ async def trycry(ctx):
 
 @bot.command()
 async def firefire(ctx):
-    output_ref = firestore_db.collection("users").document('neGaBgVEI8H7w8axvvVp')
+    output_ref = firestore_db.collection("users").document(str(ctx.message.author.id))
     output = output_ref.get()
     
     retrieved_message =  output.to_dict()
